@@ -231,6 +231,7 @@
                         <thead>
                             <tr class="bg-slate-900/90 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
                                 <th class="p-4">Nama Kreator</th>
+                                <th class="p-4">Email</th>
                                 <th class="p-4">Username</th>
                                 <th class="p-4">PIN</th>
                                 <th class="p-4">Target/Hari</th>
@@ -256,7 +257,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white">Dashboard Kreator</h2>
-                        <p class="text-xs text-slate-400">Halo, <span id="display-creator-name" class="font-semibold text-blue-400">--</span> (@<span id="display-creator-user">--</span>)</p>
+                        <p class="text-xs text-slate-400">Halo, <span id="display-creator-name" class="font-semibold text-blue-400">--</span> (@<span id="display-creator-user">--</span>) &bull; <span id="display-creator-email" class="text-slate-300">--</span></p>
                     </div>
                 </div>
 
@@ -288,34 +289,44 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
                             <i class="fa-solid fa-film text-lg"></i>
                         </div>
                         <div>
-                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Total Terbuat</p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total Terbuat (Periode)</p>
                             <p class="text-xl font-bold text-white" id="stat-total">0</p>
                         </div>
                     </div>
 
-                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center">
                             <i class="fa-brands fa-tiktok text-lg"></i>
                         </div>
                         <div>
-                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Terupload TikTok</p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Terupload TikTok</p>
                             <p class="text-xl font-bold text-white" id="stat-tiktok">0</p>
                         </div>
                     </div>
 
-                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
                             <i class="fa-brands fa-google-drive text-lg"></i>
                         </div>
                         <div>
-                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Google Drive File</p>
-                            <p class="text-xl font-bold text-white" id="stat-drive">0</p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Drive (Hari Ini)</p>
+                            <p class="text-xl font-bold text-amber-400" id="stat-drive-today">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Drive (Total Periode)</p>
+                            <p class="text-xl font-bold text-emerald-400" id="stat-drive-period">0</p>
                         </div>
                     </div>
                 </div>
@@ -327,7 +338,7 @@
                     <h3 class="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
                         <i class="fa-solid fa-file-pen text-blue-400"></i> Form Input Laporan Harian
                     </h3>
-                    <p class="text-xs text-slate-400 mt-1">Isi link konten TikTok yang telah terupload atau unggah file video ke Drive.</p>
+                    <p class="text-xs text-slate-400 mt-1">Isi link konten TikTok dan file/link Google Drive yang telah terupload hari ini.</p>
                 </div>
 
                 <!-- 1. TikTok Links Section -->
@@ -337,7 +348,7 @@
                             <i class="fa-brands fa-tiktok"></i> Link Konten TikTok (Maks. 20)
                         </h4>
                         <button onclick="addTikTokInput()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1">
-                            <i class="fa-solid fa-plus text-pink-400"></i> Tambah Link
+                            <i class="fa-solid fa-plus text-pink-400"></i> Tambah Link TikTok
                         </button>
                     </div>
                     <div id="tiktok-inputs-container" class="space-y-3">
@@ -345,24 +356,18 @@
                     </div>
                 </div>
 
-                <!-- 2. Drive Video Upload Section -->
-                <div class="space-y-4">
+                <!-- 2. Google Drive Links Section -->
+                <div class="space-y-4 pt-4 border-t border-slate-800">
                     <div class="flex justify-between items-center">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                            <i class="fa-brands fa-google-drive"></i> Upload Video Ke Google Drive (Maks. 20)
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-brands fa-google-drive"></i> Link Video Google Drive (Maks. 20)
                         </h4>
                         <button onclick="addDriveInput()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1">
-                            <i class="fa-solid fa-plus text-emerald-400"></i> Tambah Video
+                            <i class="fa-solid fa-plus text-amber-400"></i> Tambah Link Drive
                         </button>
                     </div>
-
-                    <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 flex items-start gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5"></i>
-                        <span>File video yang diunggah akan otomatis disimpan ke Google Drive dengan penamaan format <strong>Motif Produk</strong>.</span>
-                    </div>
-
-                    <div id="drive-inputs-container" class="space-y-4">
-                        <!-- Dynamic Drive Inputs -->
+                    <div id="drive-inputs-container" class="space-y-3">
+                        <!-- Dynamic Drive Link Inputs -->
                     </div>
                 </div>
 
@@ -371,7 +376,7 @@
                         <i class="fa-brands fa-whatsapp text-xl"></i>
                         <span>Lapor & Kirim ke WhatsApp</span>
                     </button>
-                    <p class="text-center text-[11px] text-slate-500 mt-2">Format otomatis: <code>Laporan konten harian (username) (tiktok) (drive) (total)</code></p>
+                    <p class="text-center text-[11px] text-slate-500 mt-2">Format otomatis: <code>Laporan konten harian (username) (tiktok) (drive_today) (drive_total)</code></p>
                 </div>
             </div>
         </div>
@@ -395,6 +400,10 @@
                 <div>
                     <label class="block text-slate-300 font-medium mb-1">Nama Lengkap Konten Kreator</label>
                     <input type="text" id="c-name" placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Email Konten Kreator</label>
+                    <input type="email" id="c-email" placeholder="budi@creator.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -460,7 +469,6 @@
                     </button>
                     <pre id="code-gs-text" class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-emerald-400 overflow-x-auto text-[11px]">
 const SPREADSHEET_ID = '1Eo_6WvsId6l9Wf3CNguBn8McE075XmSwUgTjz2iD4OM';
-const DRIVE_FOLDER_ID = '1iHzv36CncuvlEYa69EIMHnLfYuHV7GHL';
 const ADMIN_PIN = '808013';
 
 function doGet(e) {
@@ -509,8 +517,7 @@ function handleAction(action, body) {
   if (action === 'saveCreator') return saveCreator(body.data || body);
   if (action === 'deleteCreator') return deleteCreator(body.rowIdx);
   if (action === 'submitReport') return submitReport(body.data || body);
-  if (action === 'getDashboardStats') return getDashboardStats(body.username, body.startDate, body.endDate, body.isAdmin);
-  if (action === 'uploadFileServer') return uploadFileServer(body.base64Data, body.filename, body.mimeType);
+  if (action === 'getDashboardStats') return getDashboardStats(body.username, body.email, body.startDate, body.endDate, body.isAdmin);
   return { success: false, error: 'Unknown action: ' + action };
 }
 
@@ -523,13 +530,13 @@ function initSheets() {
   let sheetKreator = ss.getSheetByName('Kreator');
   if (!sheetKreator) {
     sheetKreator = ss.insertSheet('Kreator');
-    sheetKreator.appendRow(['Nama', 'Username', 'PIN', 'Target', 'WhatsApp', 'Bank', 'TTL', 'Alamat']);
-    sheetKreator.appendRow(['Kreator Demo', 'kreator1', '123456', 10, '628123456789', 'BCA 12345', 'Jakarta', 'Jl. Merdeka']);
+    sheetKreator.appendRow(['Nama', 'Username', 'Email', 'PIN', 'Target', 'WhatsApp', 'Bank', 'TTL', 'Alamat']);
+    sheetKreator.appendRow(['Kreator Demo', 'kreator1', 'kreator1@demo.com', '123456', 10, '628123456789', 'BCA 12345', 'Jakarta', 'Jl. Merdeka']);
   }
   let sheetLaporan = ss.getSheetByName('Laporan');
   if (!sheetLaporan) {
     sheetLaporan = ss.insertSheet('Laporan');
-    sheetLaporan.appendRow(['Timestamp', 'Tanggal', 'Username', 'Tipe', 'Link_atau_Motif', 'Drive_URL', 'Jumlah']);
+    sheetLaporan.appendRow(['Timestamp', 'Tanggal', 'Username', 'Email', 'Tipe', 'Link', 'Jumlah']);
   }
 }
 
@@ -540,7 +547,7 @@ function getCreatorsList() {
   const creators = [];
   for (let i = 1; i < data.length; i++) {
     if (data[i][0]) {
-      creators.push({ name: data[i][0], username: String(data[i][1]) });
+      creators.push({ name: data[i][0], username: String(data[i][1]), email: String(data[i][2] || '') });
     }
   }
   return creators;
@@ -551,8 +558,8 @@ function loginCreator(username, pin) {
   const sheet = getSpreadsheet().getSheetByName('Kreator');
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][1]).trim() === String(username).trim() && String(data[i][2]).trim() === String(pin).trim()) {
-      return { success: true, name: data[i][0], username: data[i][1], target: data[i][3] };
+    if (String(data[i][1]).trim() === String(username).trim() && String(data[i][3]).trim() === String(pin).trim()) {
+      return { success: true, name: data[i][0], username: data[i][1], email: data[i][2], target: data[i][4] };
     }
   }
   return { success: false, message: 'Username atau PIN salah!' };
@@ -576,12 +583,13 @@ function getCreatorsData() {
         rowIdx: i + 1,
         name: data[i][0],
         username: data[i][1],
-        pin: data[i][2],
-        target: data[i][3],
-        whatsapp: data[i][4],
-        bank: data[i][5],
-        ttl: data[i][6],
-        address: data[i][7]
+        email: data[i][2],
+        pin: data[i][3],
+        target: data[i][4],
+        whatsapp: data[i][5],
+        bank: data[i][6],
+        ttl: data[i][7],
+        address: data[i][8]
       });
     }
   }
@@ -592,9 +600,9 @@ function saveCreator(c) {
   initSheets();
   const sheet = getSpreadsheet().getSheetByName('Kreator');
   if (c.rowIdx) {
-    sheet.getRange(c.rowIdx, 1, 1, 8).setValues([[c.name, c.username, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]]);
+    sheet.getRange(c.rowIdx, 1, 1, 9).setValues([[c.name, c.username, c.email, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]]);
   } else {
-    sheet.appendRow([c.name, c.username, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]);
+    sheet.appendRow([c.name, c.username, c.email, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]);
   }
   return { success: true };
 }
@@ -604,19 +612,6 @@ function deleteCreator(rowIdx) {
   const sheet = getSpreadsheet().getSheetByName('Kreator');
   sheet.deleteRow(rowIdx);
   return { success: true };
-}
-
-function uploadFileServer(base64Data, filename, mimeType) {
-  try {
-    const folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
-    const decoded = Utilities.base64Decode(base64Data);
-    const blob = Utilities.newBlob(decoded, mimeType, filename);
-    const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return { success: true, url: file.getUrl(), name: filename };
-  } catch(e) {
-    return { success: false, error: e.toString() };
-  }
 }
 
 function submitReport(data) {
@@ -629,14 +624,14 @@ function submitReport(data) {
 
   if (data.tiktokLinks && data.tiktokLinks.length > 0) {
     data.tiktokLinks.forEach(function(link) {
-      sheet.appendRow([now, dateStr, data.username, 'TikTok', link, '', 1]);
+      sheet.appendRow([now, dateStr, data.username, data.email, 'TikTok', link, 1]);
       tiktokCount++;
     });
   }
 
-  if (data.driveFiles && data.driveFiles.length > 0) {
-    data.driveFiles.forEach(function(file) {
-      sheet.appendRow([now, dateStr, data.username, 'Drive', file.name, file.url, 1]);
+  if (data.driveLinks && data.driveLinks.length > 0) {
+    data.driveLinks.forEach(function(link) {
+      sheet.appendRow([now, dateStr, data.username, data.email, 'Drive', link, 1]);
       driveCount++;
     });
   }
@@ -644,13 +639,14 @@ function submitReport(data) {
   return {
     success: true,
     username: data.username,
+    email: data.email,
     totalTikTok: tiktokCount,
     totalDrive: driveCount,
     totalAll: tiktokCount + driveCount
   };
 }
 
-function getDashboardStats(username, startDate, endDate, isAdmin) {
+function getDashboardStats(username, email, startDate, endDate, isAdmin) {
   initSheets();
   const ss = getSpreadsheet();
   const lapSheet = ss.getSheetByName('Laporan');
@@ -658,54 +654,70 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
   
   const lapData = lapSheet.getDataRange().getValues();
   const kreatorData = kreatorSheet.getDataRange().getValues();
+  const todayStr = new Date().toISOString().split('T')[0];
   
   if (isAdmin) {
     const creatorsMap = {};
     for (let i = 1; i < kreatorData.length; i++) {
       if (kreatorData[i][0]) {
-        creatorsMap[kreatorData[i][1]] = {
+        const creatorEmail = String(kreatorData[i][2] || '').toLowerCase().trim();
+        creatorsMap[creatorEmail] = {
           name: kreatorData[i][0],
           username: kreatorData[i][1],
-          target: Number(kreatorData[i][3]) || 10,
+          email: kreatorData[i][2],
+          target: Number(kreatorData[i][4]) || 10,
           achieved: 0,
           tiktok: 0,
-          drive: 0
+          driveToday: 0,
+          drivePeriod: 0
         };
       }
     }
 
     for (let i = 1; i < lapData.length; i++) {
       const rowDate = lapData[i][1];
-      const u = lapData[i][2];
-      const type = lapData[i][3];
-      
-      if (startDate && rowDate < startDate) continue;
-      if (endDate && rowDate > endDate) continue;
+      const rowEmail = String(lapData[i][3] || '').toLowerCase().trim();
+      const type = lapData[i][4];
 
-      if (creatorsMap[u]) {
-        creatorsMap[u].achieved += 1;
-        if (type === 'TikTok') creatorsMap[u].tiktok += 1;
-        if (type === 'Drive') creatorsMap[u].drive += 1;
+      if (creatorsMap[rowEmail]) {
+        // Daily Google Drive count
+        if (type === 'Drive' && rowDate === todayStr) {
+          creatorsMap[rowEmail].driveToday += 1;
+        }
+
+        // Period filter check
+        if (startDate && rowDate < startDate) continue;
+        if (endDate && rowDate > endDate) continue;
+
+        creatorsMap[rowEmail].achieved += 1;
+        if (type === 'TikTok') creatorsMap[rowEmail].tiktok += 1;
+        if (type === 'Drive') creatorsMap[rowEmail].drivePeriod += 1;
       }
     }
 
     return { performanceList: Object.values(creatorsMap) };
   } else {
-    let tiktok = 0, drive = 0;
+    let tiktok = 0, driveToday = 0, drivePeriod = 0;
+    const targetEmail = String(email || '').toLowerCase().trim();
+
     for (let i = 1; i < lapData.length; i++) {
       const rowDate = lapData[i][1];
-      const u = lapData[i][2];
-      const type = lapData[i][3];
+      const rowEmail = String(lapData[i][3] || '').toLowerCase().trim();
+      const type = lapData[i][4];
 
-      if (u === username) {
+      if (rowEmail === targetEmail) {
+        if (type === 'Drive' && rowDate === todayStr) {
+          driveToday++;
+        }
+
         if (startDate && rowDate < startDate) continue;
         if (endDate && rowDate > endDate) continue;
 
         if (type === 'TikTok') tiktok++;
-        if (type === 'Drive') drive++;
+        if (type === 'Drive') drivePeriod++;
       }
     }
-    return { totalTikTok: tiktok, totalDrive: drive, totalAll: tiktok + drive };
+    return { totalTikTok: tiktok, totalDriveToday: driveToday, totalDrivePeriod: drivePeriod, totalAll: tiktok + drivePeriod };
   }
 }
                     </pre>
@@ -719,7 +731,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzypDfhPOfMJSpo0qQHoorAS58LvfxWS5Wbu-D-rDppy42yDJyA7XNii5abpBrTfxN1/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxY9Xzcs2niQwe7rQ9JwHMo3QtYsJYVnxh59c-3H_6G00uRFrLuBntewNG6NDObSL1I/exec";
 
         let currentUser = null;
         let isAdmin = false;
@@ -728,7 +740,6 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
         let driveInputCount = 0;
 
         async function callGasAPI(action, params = {}) {
-            // Attempt 1: POST request
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: "POST",
@@ -741,8 +752,6 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 return data;
             } catch (postErr) {
                 console.warn("POST request failed, trying GET request fallback...", postErr);
-                
-                // Attempt 2: GET request fallback (bypasses CORS 302 redirects)
                 try {
                     const queryParams = new URLSearchParams({
                         action: action,
@@ -756,7 +765,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                     }
                     return data;
                 } catch (getErr) {
-                    console.error("API Call Error (Both POST and GET failed):", getErr);
+                    console.error("API Call Error:", getErr);
                     throw new Error("Gagal terhubung ke Google Apps Script backend.");
                 }
             }
@@ -886,6 +895,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                     document.getElementById('nav-logout-btn').classList.remove('hidden');
                     document.getElementById('display-creator-name').textContent = res.name;
                     document.getElementById('display-creator-user').textContent = res.username;
+                    document.getElementById('display-creator-email').textContent = res.email || 'Email belum diatur';
                     loadCreatorStats();
                 } else {
                     showLoginError(res.message || "Username atau PIN salah!");
@@ -893,14 +903,16 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
             } catch (err) {
                 hideLoader();
                 if (username === 'kreator1' && pin === '123456') {
-                    currentUser = { name: 'Kreator Demo', username: 'kreator1', target: 10 };
+                    currentUser = { name: 'Kreator Demo', username: 'kreator1', email: 'kreator1@demo.com', target: 10 };
                     isAdmin = false;
                     document.getElementById('login-view').classList.add('hidden');
                     document.getElementById('creator-view').classList.remove('hidden');
                     document.getElementById('nav-logout-btn').classList.remove('hidden');
                     document.getElementById('display-creator-name').textContent = currentUser.name;
                     document.getElementById('display-creator-user').textContent = currentUser.username;
+                    document.getElementById('display-creator-email').textContent = currentUser.email;
                     alert("Masuk Mode Pratinjau Konten Kreator.");
+                    loadCreatorStats();
                     return;
                 }
                 showLoginError("Gagal tersambung ke backend API. Untuk demo, gunakan 'kreator1' & PIN '123456'.");
@@ -927,7 +939,6 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 }
             } catch (err) {
                 hideLoader();
-                // Offline fallback logic for PIN 808013
                 if (String(pin).trim() === '808013') {
                     isAdmin = true;
                     document.getElementById('login-view').classList.add('hidden');
@@ -983,7 +994,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 hideLoader();
                 console.warn("Using demo creator data due to API fallback:", err);
                 adminCreatorsData = [
-                    { rowIdx: 2, name: 'Kreator Demo', username: 'kreator1', pin: '123456', target: 10, whatsapp: '628123456789', bank: 'BCA 123456789', ttl: 'Jakarta, 1 Jan 2000', address: 'Jl. Merdeka' }
+                    { rowIdx: 2, name: 'Kreator Demo', username: 'kreator1', email: 'kreator1@demo.com', pin: '123456', target: 10, whatsapp: '628123456789', bank: 'BCA 123456789', ttl: 'Jakarta, 1 Jan 2000', address: 'Jl. Merdeka' }
                 ];
                 renderCreatorTable();
             }
@@ -993,7 +1004,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
             const tbody = document.getElementById('creator-table-body');
             tbody.innerHTML = '';
             if(!adminCreatorsData || adminCreatorsData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-xs">Belum ada data kreator. Klik "Tambah Kreator" untuk menambah data baru.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-xs">Belum ada data kreator. Klik "Tambah Kreator" untuk menambah data baru.</td></tr>`;
                 return;
             }
 
@@ -1002,6 +1013,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
                 tr.innerHTML = `
                     <td class="p-4 font-semibold text-white">${c.name}</td>
+                    <td class="p-4 text-slate-300">${c.email || '-'}</td>
                     <td class="p-4 font-mono text-purple-400">@${c.username}</td>
                     <td class="p-4 font-mono text-slate-400">${c.pin}</td>
                     <td class="p-4">
@@ -1031,6 +1043,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 const c = adminCreatorsData[idx];
                 document.getElementById('c-row').value = c.rowIdx;
                 document.getElementById('c-name').value = c.name;
+                document.getElementById('c-email').value = c.email || '';
                 document.getElementById('c-username').value = c.username;
                 document.getElementById('c-pin').value = c.pin;
                 document.getElementById('c-target').value = c.target;
@@ -1042,6 +1055,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-user-plus text-purple-400"></i> Tambah Kreator Baru';
                 document.getElementById('c-row').value = '';
                 document.getElementById('c-name').value = '';
+                document.getElementById('c-email').value = '';
                 document.getElementById('c-username').value = '';
                 document.getElementById('c-pin').value = '';
                 document.getElementById('c-target').value = '10';
@@ -1060,6 +1074,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
             const data = {
                 rowIdx: document.getElementById('c-row').value,
                 name: document.getElementById('c-name').value.trim(),
+                email: document.getElementById('c-email').value.trim(),
                 username: document.getElementById('c-username').value.trim(),
                 pin: document.getElementById('c-pin').value.trim(),
                 target: Number(document.getElementById('c-target').value) || 10,
@@ -1069,8 +1084,8 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 address: document.getElementById('c-address').value.trim()
             };
 
-            if(!data.name || !data.username || !data.pin) {
-                alert("Nama, Username, dan PIN wajib diisi!");
+            if(!data.name || !data.username || !data.email || !data.pin) {
+                alert("Nama, Username, Email, dan PIN wajib diisi!");
                 return;
             }
 
@@ -1109,7 +1124,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 console.warn("Using demo stats due to API fallback:", err);
                 renderAdminStats({
                     performanceList: [
-                        { name: 'Kreator Demo', username: 'kreator1', target: 10, achieved: 8, tiktok: 5, drive: 3 }
+                        { name: 'Kreator Demo', username: 'kreator1', email: 'kreator1@demo.com', target: 10, achieved: 8, tiktok: 5, driveToday: 2, drivePeriod: 3 }
                     ]
                 });
             }
@@ -1136,6 +1151,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                             <div>
                                 <h4 class="font-bold text-base text-white">${p.name}</h4>
                                 <p class="text-xs text-purple-400 font-mono">@${p.username}</p>
+                                <p class="text-[11px] text-slate-400"><i class="fa-regular fa-envelope text-[10px] mr-1"></i>${p.email || '-'}</p>
                             </div>
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${isAchieved ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
                                 ${isAchieved ? 'Target Tercapai' : 'Proses Target'}
@@ -1152,14 +1168,18 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800 text-xs">
-                            <div class="flex items-center gap-2 text-pink-400 bg-pink-950/20 p-2 rounded-xl border border-pink-900/30">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-xs">
+                            <div class="flex items-center gap-1.5 text-pink-400 bg-pink-950/20 p-2 rounded-xl border border-pink-900/30">
                                 <i class="fa-brands fa-tiktok text-sm"></i>
                                 <span><strong>${p.tiktok}</strong> TikTok</span>
                             </div>
-                            <div class="flex items-center gap-2 text-emerald-400 bg-emerald-950/20 p-2 rounded-xl border border-emerald-900/30">
+                            <div class="flex items-center gap-1.5 text-amber-400 bg-amber-950/20 p-2 rounded-xl border border-amber-900/30">
                                 <i class="fa-brands fa-google-drive text-sm"></i>
-                                <span><strong>${p.drive}</strong> Drive</span>
+                                <span><strong>${p.driveToday || 0}</strong> Drive (Hari ini)</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-emerald-400 bg-emerald-950/20 p-2 rounded-xl border border-emerald-900/30">
+                                <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                                <span><strong>${p.drivePeriod || 0}</strong> Drive (Periode)</span>
                             </div>
                         </div>
                     </div>
@@ -1176,17 +1196,19 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
 
             showLoader("Menarik Pencapaian Creator...");
             try {
-                const stats = await callGasAPI('getDashboardStats', { username: currentUser.username, startDate: start, endDate: end, isAdmin: false });
+                const stats = await callGasAPI('getDashboardStats', { username: currentUser.username, email: currentUser.email, startDate: start, endDate: end, isAdmin: false });
                 document.getElementById('stat-total').textContent = stats.totalAll || 0;
                 document.getElementById('stat-tiktok').textContent = stats.totalTikTok || 0;
-                document.getElementById('stat-drive').textContent = stats.totalDrive || 0;
+                document.getElementById('stat-drive-today').textContent = stats.totalDriveToday || 0;
+                document.getElementById('stat-drive-period').textContent = stats.totalDrivePeriod || 0;
                 hideLoader();
             } catch(err) {
                 hideLoader();
                 console.warn("Using default stats due to API error:", err);
                 document.getElementById('stat-total').textContent = 0;
                 document.getElementById('stat-tiktok').textContent = 0;
-                document.getElementById('stat-drive').textContent = 0;
+                document.getElementById('stat-drive-today').textContent = 0;
+                document.getElementById('stat-drive-period').textContent = 0;
             }
         }
 
@@ -1211,27 +1233,21 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
         }
 
         function addDriveInput() {
-            if(driveInputCount >= 20) { alert("Maksimal 20 video Drive per hari!"); return; }
+            if(driveInputCount >= 20) { alert("Maksimal 20 link Google Drive per hari!"); return; }
             driveInputCount++;
-            const id = 'dv_' + Date.now() + Math.random().toString(36).substr(2, 4);
+            const id = 'drv_' + Date.now() + Math.random().toString(36).substr(2, 4);
 
             const div = document.createElement('div');
             div.id = `wrap_${id}`;
-            div.className = "bg-slate-900/90 p-4 rounded-xl border border-slate-700 relative space-y-3";
+            div.className = "flex items-center gap-2";
             div.innerHTML = `
-                <button onclick="removeInput('wrap_${id}', 'drive')" class="absolute top-3 right-3 text-slate-500 hover:text-red-400 transition">
+                <div class="flex-grow flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden focus-within:border-amber-500 transition">
+                    <span class="pl-3 text-amber-500"><i class="fa-brands fa-google-drive text-xs"></i></span>
+                    <input type="url" name="drive_link" class="w-full bg-transparent text-xs sm:text-sm p-3 text-white focus:outline-none placeholder-slate-500" placeholder="https://drive.google.com/file/d/xxxx...">
+                </div>
+                <button onclick="removeInput('wrap_${id}', 'drive')" class="p-3 text-slate-500 hover:text-red-400 transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-6">
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1 font-semibold uppercase">Motif Produk (Penamaan File)</label>
-                        <input type="text" name="drive_motif" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" placeholder="Contoh: Motif Abstrak Blue">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1 font-semibold uppercase">Pilih File Video</label>
-                        <input type="file" accept="video/*" name="drive_file" class="w-full text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 focus:outline-none cursor-pointer">
-                    </div>
-                </div>
             `;
             document.getElementById('drive-inputs-container').appendChild(div);
         }
@@ -1243,33 +1259,6 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
             if(type === 'drive') driveInputCount--;
         }
 
-        function uploadFileAsBase64(file, motif) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    try {
-                        const dataUrl = e.target.result;
-                        const base64 = dataUrl.split(',')[1];
-                        const mimeType = dataUrl.split(';')[0].split(':')[1];
-                        const ext = file.name.split('.').pop();
-                        const cleanMotif = motif.replace(/[^a-zA-Z0-9_-]/g, '_');
-                        const newName = `${cleanMotif}_${currentUser.username}_${Date.now()}.${ext}`;
-
-                        const res = await callGasAPI('uploadFileServer', {
-                            base64Data: base64,
-                            filename: newName,
-                            mimeType: mimeType
-                        });
-                        resolve(res);
-                    } catch (err) {
-                        reject(err);
-                    }
-                };
-                reader.onerror = function() { reject("Gagal membaca file sistem komputer Anda!"); };
-                reader.readAsDataURL(file);
-            });
-        }
-
         async function submitDailyReport() {
             const tkInputs = document.querySelectorAll('input[name="tiktok_link"]');
             let tiktokLinks = [];
@@ -1277,54 +1266,23 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 if(inp.value.trim() !== "") tiktokLinks.push(inp.value.trim());
             });
 
-            const driveWraps = document.getElementById('drive-inputs-container').children;
-            let fileQueue = [];
+            const drvInputs = document.querySelectorAll('input[name="drive_link"]');
+            let driveLinks = [];
+            drvInputs.forEach(inp => {
+                if(inp.value.trim() !== "") driveLinks.push(inp.value.trim());
+            });
 
-            for(let i=0; i<driveWraps.length; i++) {
-                const motifInp = driveWraps[i].querySelector('input[name="drive_motif"]');
-                const fileInp = driveWraps[i].querySelector('input[name="drive_file"]');
-
-                if(fileInp && fileInp.files.length > 0) {
-                    fileQueue.push({
-                        motif: motifInp && motifInp.value.trim() !== "" ? motifInp.value.trim() : "Motif_Tanpa_Nama",
-                        file: fileInp.files[0]
-                    });
-                }
-            }
-
-            if(tiktokLinks.length === 0 && fileQueue.length === 0) {
-                alert("Harap masukkan setidaknya 1 Link TikTok atau 1 Upload Video Drive!");
+            if(tiktokLinks.length === 0 && driveLinks.length === 0) {
+                alert("Harap masukkan setidaknya 1 Link TikTok atau Link Google Drive!");
                 return;
-            }
-
-            let uploadedFiles = [];
-            if(fileQueue.length > 0) {
-                for(let i=0; i<fileQueue.length; i++) {
-                    const item = fileQueue[i];
-                    showLoader(`Mengupload Video Ke Server (${i+1}/${fileQueue.length})...\nMohon tunggu, ini bisa memakan waktu...`);
-                    
-                    try {
-                        const res = await uploadFileAsBase64(item.file, item.motif);
-                        if(res.success) {
-                            uploadedFiles.push({ name: res.name, url: res.url });
-                        } else {
-                            alert(`Gagal upload video ke-${i+1}: ${res.error}`);
-                            hideLoader();
-                            return;
-                        }
-                    } catch(err) {
-                        alert(`Error Server saat upload video ke-${i+1}: ${err.message || err}`);
-                        hideLoader();
-                        return;
-                    }
-                }
             }
 
             showLoader("Mensinkronkan Laporan Harian...");
             const reportData = {
                 username: currentUser.username,
+                email: currentUser.email,
                 tiktokLinks: tiktokLinks,
-                driveFiles: uploadedFiles,
+                driveLinks: driveLinks,
                 date: new Date().toISOString().split('T')[0]
             };
 
@@ -1333,7 +1291,7 @@ function getDashboardStats(username, startDate, endDate, isAdmin) {
                 hideLoader();
                 
                 if (res.success) {
-                    const waText = `Laporan konten harian ${currentUser.username} ${res.totalTikTok} ${res.totalDrive} ${res.totalAll}`;
+                    const waText = `Laporan konten harian ${currentUser.username} (${currentUser.email})\n- TikTok: ${res.totalTikTok}\n- Drive Hari Ini: ${res.totalDrive}\n- Total Hari Ini: ${res.totalAll}`;
                     const waUrl = `https://wa.me/6283866997758?text=${encodeURIComponent(waText)}`;
                     window.open(waUrl, '_blank');
 
