@@ -219,7 +219,7 @@
                 <div class="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
                     <div>
                         <h3 class="text-base font-bold text-white">Data Konten Kreator</h3>
-                        <p class="text-xs text-slate-400">Kelola informasi akun, target, dan rincian kontak</p>
+                        <p class="text-xs text-slate-400">Kelola informasi akun, target, folder Drive, dan rincian kontak</p>
                     </div>
                     <button onclick="openCreatorModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-plus"></i> Tambah Kreator
@@ -233,7 +233,7 @@
                                 <th class="p-4">Nama Kreator</th>
                                 <th class="p-4">Email</th>
                                 <th class="p-4">Username</th>
-                                <th class="p-4">PIN</th>
+                                <th class="p-4">Folder Drive</th>
                                 <th class="p-4">Target/Hari</th>
                                 <th class="p-4">Nomor WhatsApp</th>
                                 <th class="p-4">Rekening</th>
@@ -338,7 +338,7 @@
                     <h3 class="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
                         <i class="fa-solid fa-file-pen text-blue-400"></i> Form Input Laporan Harian
                     </h3>
-                    <p class="text-xs text-slate-400 mt-1">Isi link konten TikTok dan file/link Google Drive yang telah terupload hari ini.</p>
+                    <p class="text-xs text-slate-400 mt-1">Isi link konten TikTok yang telah terupload hari ini.</p>
                 </div>
 
                 <!-- 1. TikTok Links Section -->
@@ -355,28 +355,12 @@
                         <!-- Dynamic TikTok Link Inputs -->
                     </div>
                 </div>
-
-                <!-- 2. Google Drive Links Section -->
-                <div class="space-y-4 pt-4 border-t border-slate-800">
-                    <div class="flex justify-between items-center">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                            <i class="fa-brands fa-google-drive"></i> Link Video Google Drive (Maks. 20)
-                        </h4>
-                        <button onclick="addDriveInput()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1">
-                            <i class="fa-solid fa-plus text-amber-400"></i> Tambah Link Drive
-                        </button>
-                    </div>
-                    <div id="drive-inputs-container" class="space-y-3">
-                        <!-- Dynamic Drive Link Inputs -->
-                    </div>
-                </div>
-
+                
                 <div class="pt-4 border-t border-slate-800">
-                    <button onclick="submitDailyReport()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-emerald-600/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 text-base">
-                        <i class="fa-brands fa-whatsapp text-xl"></i>
-                        <span>Lapor & Kirim ke WhatsApp</span>
+                    <button onclick="submitDailyReport()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-blue-600/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 text-base">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                        <span>Simpan Laporan Harian</span>
                     </button>
-                    <p class="text-center text-[11px] text-slate-500 mt-2">Format otomatis: <code>Laporan konten harian (username) (tiktok) (drive_today) (drive_total)</code></p>
                 </div>
             </div>
         </div>
@@ -428,6 +412,11 @@
                 <div>
                     <label class="block text-slate-300 font-medium mb-1">Nomor Rekening Bank / E-Wallet</label>
                     <input type="text" id="c-bank" placeholder="BCA 1234567890 a/n Budi" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Link / ID Folder Google Drive Konten</label>
+                    <input type="text" id="c-drive-folder" placeholder="https://drive.google.com/drive/folders/1iHzv36..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Masukkan URL folder Drive tempat kreator mengunggah video agar dihitung otomatis oleh sistem.</p>
                 </div>
                 <div>
                     <label class="block text-slate-300 font-medium mb-1">Tempat, Tanggal Lahir</label>
@@ -530,14 +519,52 @@ function initSheets() {
   let sheetKreator = ss.getSheetByName('Kreator');
   if (!sheetKreator) {
     sheetKreator = ss.insertSheet('Kreator');
-    sheetKreator.appendRow(['Nama', 'Username', 'Email', 'PIN', 'Target', 'WhatsApp', 'Bank', 'TTL', 'Alamat']);
-    sheetKreator.appendRow(['Kreator Demo', 'kreator1', 'kreator1@demo.com', '123456', 10, '628123456789', 'BCA 12345', 'Jakarta', 'Jl. Merdeka']);
+    sheetKreator.appendRow(['Nama', 'Username', 'Email', 'PIN', 'Target', 'WhatsApp', 'Bank', 'TTL', 'Alamat', 'FolderDrive']);
+    sheetKreator.appendRow(['Kreator Demo', 'kreator1', 'kreator1@demo.com', '123456', 10, '628123456789', 'BCA 12345', 'Jakarta', 'Jl. Merdeka', '']);
   }
-  let sheetLaporan = ss.getSheetByName('Laporan');
-  if (!sheetLaporan) {
-    sheetLaporan = ss.insertSheet('Laporan');
-    sheetLaporan.appendRow(['Timestamp', 'Tanggal', 'Username', 'Email', 'Tipe', 'Link', 'Jumlah']);
+}
+
+function extractFolderId(urlOrId) {
+  if (!urlOrId) return '';
+  const str = String(urlOrId).trim();
+  const match = str.match(/folders\/([a-zA-Z0-9_-]+)/);
+  if (match && match[1]) return match[1];
+  return str;
+}
+
+function countFilesInFolder(folderUrlOrId, startDateStr, endDateStr) {
+  const folderId = extractFolderId(folderUrlOrId);
+  if (!folderId) return { today: 0, period: 0 };
+  
+  let todayCount = 0;
+  let periodCount = 0;
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  try {
+    const folder = DriveApp.getFolderById(folderId);
+    const files = folder.getFiles();
+
+    while (files.hasNext()) {
+      const file = files.next();
+      const fileCreatedDate = file.getDateCreated().toISOString().split('T')[0];
+
+      if (fileCreatedDate === todayStr) {
+        todayCount++;
+      }
+
+      let inPeriod = true;
+      if (startDateStr && fileCreatedDate < startDateStr) inPeriod = false;
+      if (endDateStr && fileCreatedDate > endDateStr) inPeriod = false;
+
+      if (inPeriod) {
+        periodCount++;
+      }
+    }
+  } catch(e) {
+    Logger.log('DriveApp Error: ' + e.toString());
   }
+
+  return { today: todayCount, period: periodCount };
 }
 
 function getCreatorsList() {
@@ -589,7 +616,8 @@ function getCreatorsData() {
         whatsapp: data[i][5],
         bank: data[i][6],
         ttl: data[i][7],
-        address: data[i][8]
+        address: data[i][8],
+        driveFolder: data[i][9] || ''
       });
     }
   }
@@ -600,9 +628,9 @@ function saveCreator(c) {
   initSheets();
   const sheet = getSpreadsheet().getSheetByName('Kreator');
   if (c.rowIdx) {
-    sheet.getRange(c.rowIdx, 1, 1, 9).setValues([[c.name, c.username, c.email, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]]);
+    sheet.getRange(c.rowIdx, 1, 1, 10).setValues([[c.name, c.username, c.email, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address, c.driveFolder || '']]);
   } else {
-    sheet.appendRow([c.name, c.username, c.email, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]);
+    sheet.appendRow([c.name, c.username, c.email, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address, c.driveFolder || '']);
   }
   return { success: true };
 }
@@ -620,7 +648,6 @@ function submitReport(data) {
   const now = new Date();
   const dateStr = now.toISOString().split('T')[0];
   let tiktokCount = 0;
-  let driveCount = 0;
 
   if (data.tiktokLinks && data.tiktokLinks.length > 0) {
     data.tiktokLinks.forEach(function(link) {
@@ -629,20 +656,12 @@ function submitReport(data) {
     });
   }
 
-  if (data.driveLinks && data.driveLinks.length > 0) {
-    data.driveLinks.forEach(function(link) {
-      sheet.appendRow([now, dateStr, data.username, data.email, 'Drive', link, 1]);
-      driveCount++;
-    });
-  }
-
   return {
     success: true,
     username: data.username,
     email: data.email,
     totalTikTok: tiktokCount,
-    totalDrive: driveCount,
-    totalAll: tiktokCount + driveCount
+    totalAll: tiktokCount
   };
 }
 
@@ -654,22 +673,24 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
   
   const lapData = lapSheet.getDataRange().getValues();
   const kreatorData = kreatorSheet.getDataRange().getValues();
-  const todayStr = new Date().toISOString().split('T')[0];
   
   if (isAdmin) {
     const creatorsMap = {};
     for (let i = 1; i < kreatorData.length; i++) {
       if (kreatorData[i][0]) {
         const creatorEmail = String(kreatorData[i][2] || '').toLowerCase().trim();
+        const driveFolderUrl = kreatorData[i][9] || '';
+        const driveStats = countFilesInFolder(driveFolderUrl, startDate, endDate);
+
         creatorsMap[creatorEmail] = {
           name: kreatorData[i][0],
           username: kreatorData[i][1],
           email: kreatorData[i][2],
           target: Number(kreatorData[i][4]) || 10,
-          achieved: 0,
+          achieved: driveStats.period,
           tiktok: 0,
-          driveToday: 0,
-          drivePeriod: 0
+          driveToday: driveStats.today,
+          drivePeriod: driveStats.period
         };
       }
     }
@@ -680,25 +701,30 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
       const type = lapData[i][4];
 
       if (creatorsMap[rowEmail]) {
-        // Daily Google Drive count
-        if (type === 'Drive' && rowDate === todayStr) {
-          creatorsMap[rowEmail].driveToday += 1;
-        }
-
-        // Period filter check
         if (startDate && rowDate < startDate) continue;
         if (endDate && rowDate > endDate) continue;
 
-        creatorsMap[rowEmail].achieved += 1;
-        if (type === 'TikTok') creatorsMap[rowEmail].tiktok += 1;
-        if (type === 'Drive') creatorsMap[rowEmail].drivePeriod += 1;
+        if (type === 'TikTok') {
+          creatorsMap[rowEmail].tiktok += 1;
+          creatorsMap[rowEmail].achieved += 1;
+        }
       }
     }
 
     return { performanceList: Object.values(creatorsMap) };
   } else {
-    let tiktok = 0, driveToday = 0, drivePeriod = 0;
+    let tiktok = 0;
+    let driveFolderUrl = '';
     const targetEmail = String(email || '').toLowerCase().trim();
+
+    for (let i = 1; i < kreatorData.length; i++) {
+      if (String(kreatorData[i][2] || '').toLowerCase().trim() === targetEmail) {
+        driveFolderUrl = kreatorData[i][9] || '';
+        break;
+      }
+    }
+
+    const driveStats = countFilesInFolder(driveFolderUrl, startDate, endDate);
 
     for (let i = 1; i < lapData.length; i++) {
       const rowDate = lapData[i][1];
@@ -706,18 +732,18 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
       const type = lapData[i][4];
 
       if (rowEmail === targetEmail) {
-        if (type === 'Drive' && rowDate === todayStr) {
-          driveToday++;
-        }
-
         if (startDate && rowDate < startDate) continue;
         if (endDate && rowDate > endDate) continue;
 
         if (type === 'TikTok') tiktok++;
-        if (type === 'Drive') drivePeriod++;
       }
     }
-    return { totalTikTok: tiktok, totalDriveToday: driveToday, totalDrivePeriod: drivePeriod, totalAll: tiktok + drivePeriod };
+    return { 
+      totalTikTok: tiktok, 
+      totalDriveToday: driveStats.today, 
+      totalDrivePeriod: driveStats.period, 
+      totalAll: tiktok + driveStats.period 
+    };
   }
 }
                     </pre>
@@ -781,7 +807,6 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
             
             loadCreatorDropdown();
             addTikTokInput();
-            addDriveInput();
         };
 
         function startClock() {
@@ -1011,11 +1036,17 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
             adminCreatorsData.forEach((c, index) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
+                const hasFolder = c.driveFolder && c.driveFolder.trim() !== '';
                 tr.innerHTML = `
                     <td class="p-4 font-semibold text-white">${c.name}</td>
                     <td class="p-4 text-slate-300">${c.email || '-'}</td>
                     <td class="p-4 font-mono text-purple-400">@${c.username}</td>
-                    <td class="p-4 font-mono text-slate-400">${c.pin}</td>
+                    <td class="p-4 text-slate-300">
+                        ${hasFolder 
+                            ? `<a href="${c.driveFolder}" target="_blank" class="text-blue-400 hover:underline flex items-center gap-1 text-xs"><i class="fa-brands fa-google-drive"></i> Terhubung</a>`
+                            : `<span class="text-slate-500 italic text-xs"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i>Belum Diatur</span>`
+                        }
+                    </td>
                     <td class="p-4">
                         <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">${c.target} Konten</span>
                     </td>
@@ -1049,6 +1080,7 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
                 document.getElementById('c-target').value = c.target;
                 document.getElementById('c-wa').value = c.whatsapp;
                 document.getElementById('c-bank').value = c.bank || '';
+                document.getElementById('c-drive-folder').value = c.driveFolder || '';
                 document.getElementById('c-ttl').value = c.ttl || '';
                 document.getElementById('c-address').value = c.address || '';
             } else {
@@ -1061,6 +1093,7 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
                 document.getElementById('c-target').value = '10';
                 document.getElementById('c-wa').value = '';
                 document.getElementById('c-bank').value = '';
+                document.getElementById('c-drive-folder').value = '';
                 document.getElementById('c-ttl').value = '';
                 document.getElementById('c-address').value = '';
             }
@@ -1080,6 +1113,7 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
                 target: Number(document.getElementById('c-target').value) || 10,
                 whatsapp: document.getElementById('c-wa').value.trim(),
                 bank: document.getElementById('c-bank').value.trim(),
+                driveFolder: document.getElementById('c-drive-folder').value.trim(),
                 ttl: document.getElementById('c-ttl').value.trim(),
                 address: document.getElementById('c-address').value.trim()
             };
@@ -1232,31 +1266,10 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
             document.getElementById('tiktok-inputs-container').appendChild(div);
         }
 
-        function addDriveInput() {
-            if(driveInputCount >= 20) { alert("Maksimal 20 link Google Drive per hari!"); return; }
-            driveInputCount++;
-            const id = 'drv_' + Date.now() + Math.random().toString(36).substr(2, 4);
-
-            const div = document.createElement('div');
-            div.id = `wrap_${id}`;
-            div.className = "flex items-center gap-2";
-            div.innerHTML = `
-                <div class="flex-grow flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden focus-within:border-amber-500 transition">
-                    <span class="pl-3 text-amber-500"><i class="fa-brands fa-google-drive text-xs"></i></span>
-                    <input type="url" name="drive_link" class="w-full bg-transparent text-xs sm:text-sm p-3 text-white focus:outline-none placeholder-slate-500" placeholder="https://drive.google.com/file/d/xxxx...">
-                </div>
-                <button onclick="removeInput('wrap_${id}', 'drive')" class="p-3 text-slate-500 hover:text-red-400 transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            `;
-            document.getElementById('drive-inputs-container').appendChild(div);
-        }
-
         function removeInput(id, type) {
             const el = document.getElementById(id);
             if (el) el.remove();
             if(type === 'tiktok') tiktokInputCount--;
-            if(type === 'drive') driveInputCount--;
         }
 
         async function submitDailyReport() {
@@ -1266,23 +1279,17 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
                 if(inp.value.trim() !== "") tiktokLinks.push(inp.value.trim());
             });
 
-            const drvInputs = document.querySelectorAll('input[name="drive_link"]');
-            let driveLinks = [];
-            drvInputs.forEach(inp => {
-                if(inp.value.trim() !== "") driveLinks.push(inp.value.trim());
-            });
-
-            if(tiktokLinks.length === 0 && driveLinks.length === 0) {
-                alert("Harap masukkan setidaknya 1 Link TikTok atau Link Google Drive!");
+            if(tiktokLinks.length === 0) {
+                alert("Harap masukkan setidaknya 1 Link TikTok!");
                 return;
             }
 
-            showLoader("Mensinkronkan Laporan Harian...");
+            showLoader("Menyimpan Laporan Harian...");
             const reportData = {
                 username: currentUser.username,
                 email: currentUser.email,
                 tiktokLinks: tiktokLinks,
-                driveLinks: driveLinks,
+                driveLinks: [], // Always empty since it's removed
                 date: new Date().toISOString().split('T')[0]
             };
 
@@ -1291,21 +1298,14 @@ function getDashboardStats(username, email, startDate, endDate, isAdmin) {
                 hideLoader();
                 
                 if (res.success) {
-                    const waText = `Laporan konten harian ${currentUser.username} (${currentUser.email})\n- TikTok: ${res.totalTikTok}\n- Drive Hari Ini: ${res.totalDrive}\n- Total Hari Ini: ${res.totalAll}`;
-                    const waUrl = `https://wa.me/6283866997758?text=${encodeURIComponent(waText)}`;
-                    window.open(waUrl, '_blank');
-
                     document.getElementById('tiktok-inputs-container').innerHTML = '';
-                    document.getElementById('drive-inputs-container').innerHTML = '';
                     tiktokInputCount = 0;
-                    driveInputCount = 0;
                     addTikTokInput();
-                    addDriveInput();
 
                     loadCreatorStats();
-                    alert(`Laporan Berhasil Disinkronisasikan!\n\nSummary:\n- TikTok: ${res.totalTikTok}\n- Drive: ${res.totalDrive}\n- Total: ${res.totalAll}`);
+                    alert(`Laporan Berhasil Disimpan!\n\nSummary:\n- TikTok: ${res.totalTikTok}\n- Total Laporan Baru: ${res.totalAll}`);
                 } else {
-                    handleError(res.error || "Gagal menyinkronkan laporan");
+                    handleError(res.error || "Gagal menyimpan laporan");
                 }
             } catch (err) {
                 handleError(err.message);
