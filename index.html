@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreatorHub - Aplikasi Laporan Harian Konten Kreator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        darkbg: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .loader-spin {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-600 selection:text-white pb-12">
+
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex flex-col items-center justify-center hidden">
+        <div class="loader-spin mb-4"></div>
+        <p id="loading-text" class="text-blue-400 font-semibold text-sm tracking-wide animate-pulse">Memuat Data System...</p>
+    </div>
+
+    <header class="bg-slate-900/90 sticky top-0 z-40 border-b border-slate-800 backdrop-blur-md px-4 lg:px-8 py-3.5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-play text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                        CreatorHub <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">v3.0</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">Laporan Harian & Sinkronisasi Content Creator</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div id="env-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span id="env-mode-text">Connecting...</span>
+                </div>
+                
+                <button id="nav-logout-btn" onclick="logout()" class="hidden px-3 py-1.5 text-xs font-medium rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Keluar</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+
+        <div id="login-view" class="max-w-md mx-auto my-8">
+            <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-800">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-600/10 rounded-2xl border border-blue-500/20 mx-auto flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-user-lock text-2xl text-blue-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Selamat Datang</h2>
+                    <p class="text-xs text-slate-400 mt-1">Pilih metode masuk untuk mengakses portal laporan harian</p>
+                </div>
+
+                <!-- Tabs Login -->
+                <div class="flex p-1 bg-slate-900 rounded-xl mb-6 border border-slate-800">
+                    <button onclick="switchLoginTab('creator')" id="tab-creator" class="flex-1 py-2.5 text-xs sm:text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md transition-all">
+                        <i class="fa-solid fa-video mr-1.5"></i> Konten Kreator
+                    </button>
+                    <button onclick="switchLoginTab('admin')" id="tab-admin" class="flex-1 py-2.5 text-xs sm:text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all">
+                        <i class="fa-solid fa-user-shield mr-1.5"></i> Admin Portal
+                    </button>
+                </div>
+
+                <!-- Form Login Kreator -->
+                <div id="form-creator">
+                    <div class="mb-4">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Pilih Username Kreator</label>
+                        <div class="relative">
+                            <select id="login-username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 appearance-none">
+                                <option value="">Loading list username...</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">PIN Access Kreator</label>
+                        <div class="relative">
+                            <input type="password" id="login-creator-pin" placeholder="Masukkan PIN 6 Digit" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 tracking-widest">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500">
+                                <i class="fa-solid fa-key"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="handleCreatorLogin()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-[0.98] text-sm">
+                        Masuk Portal Kreator
+                    </button>
+                </div>
+
+                <!-- Form Login Admin -->
+                <div id="form-admin" class="hidden">
+                    <div class="mb-6">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">PIN Akses Admin</label>
+                        <div class="relative">
+                            <input type="password" id="login-admin-pin" placeholder="Masukkan PIN Admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 tracking-widest text-center text-lg">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500">
+                                <i class="fa-solid fa-shield"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="handleAdminLogin()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-purple-500/25 transition-all transform active:scale-[0.98] text-sm">
+                        Masuk Dashboard Admin
+                    </button>
+                </div>
+
+                <div id="login-error" class="hidden mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs text-center font-medium"></div>
+            </div>
+        </div>
+
+        <div id="admin-view" class="hidden space-y-6">
+            <!-- Top Subnav -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <button onclick="switchAdminView('performa')" id="btn-view-performa" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold bg-purple-600 text-white shadow-md transition">
+                        <i class="fa-solid fa-chart-pie mr-1.5"></i> Kartu Performa
+                    </button>
+                    <button onclick="switchAdminView('manajemen')" id="btn-view-manajemen" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition">
+                        <i class="fa-solid fa-users-gear mr-1.5"></i> Manajemen Kreator
+                    </button>
+                    <button onclick="toggleScriptModal()" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center justify-center gap-1.5" title="Lihat Script Code.gs">
+                        <i class="fa-solid fa-code text-blue-400"></i>
+                        <span>Setup Code.gs</span>
+                    </button>
+                </div>
+                <div class="text-xs text-purple-400 font-medium px-3 py-1 bg-purple-950/40 rounded-lg border border-purple-800/40 self-end sm:self-auto">
+                    <i class="fa-solid fa-user-shield mr-1"></i> Mode Admin Aktif
+                </div>
+            </div>
+
+            <!-- Tab Performa Kreator -->
+            <div id="admin-performa" class="space-y-6">
+                <!-- Filter Bar -->
+                <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                    <div>
+                        <h3 class="text-base font-bold text-white">Ringkasan Performa & Target Konten</h3>
+                        <p class="text-xs text-slate-400">Pantau pencapaian daily target dari seluruh konten kreator</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-xl p-1.5 text-xs">
+                            <span class="text-slate-400 px-1"><i class="fa-solid fa-calendar text-purple-400"></i></span>
+                            <input type="date" id="admin-filter-start" class="bg-transparent text-white focus:outline-none">
+                            <span class="text-slate-500">s/d</span>
+                            <input type="date" id="admin-filter-end" class="bg-transparent text-white focus:outline-none">
+                        </div>
+                        <button onclick="loadAdminStats()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow transition">
+                            <i class="fa-solid fa-filter mr-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Performance Cards Grid -->
+                <div id="admin-stats-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Dynamic Content Injected Here -->
+                </div>
+            </div>
+
+            <div id="admin-manajemen" class="hidden space-y-4">
+                <div class="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                    <div>
+                        <h3 class="text-base font-bold text-white">Data Konten Kreator</h3>
+                        <p class="text-xs text-slate-400">Kelola informasi akun, target, dan rincian kontak</p>
+                    </div>
+                    <button onclick="openCreatorModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Tambah Kreator
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-800 glass-panel">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="bg-slate-900/90 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                                <th class="p-4">Nama Kreator</th>
+                                <th class="p-4">Username</th>
+                                <th class="p-4">PIN</th>
+                                <th class="p-4">Target/Hari</th>
+                                <th class="p-4">Nomor WhatsApp</th>
+                                <th class="p-4">Rekening</th>
+                                <th class="p-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="creator-table-body" class="divide-y divide-slate-800 text-sm">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="creator-view" class="hidden space-y-6">
+            <!-- Header Info Card -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex flex-col md:flex-row justify-between md:items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xl">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Dashboard Kreator</h2>
+                        <p class="text-xs text-slate-400">Halo, <span id="display-creator-name" class="font-semibold text-blue-400">--</span> (@<span id="display-creator-user">--</span>)</p>
+                    </div>
+                </div>
+
+                <!-- Real-time Clock Widget -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-3">
+                    <i class="fa-regular fa-clock text-blue-400 text-lg"></i>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Waktu Realtime</p>
+                        <p id="realtime-clock" class="text-sm font-mono font-bold text-white">--:--:--</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats & Filter Section -->
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-800 pb-4">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-blue-400"></i> Ringkasan Pencapaian Konten
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-xl p-1.5 text-xs">
+                            <input type="date" id="creator-filter-start" class="bg-transparent text-white focus:outline-none">
+                            <span class="text-slate-500">s/d</span>
+                            <input type="date" id="creator-filter-end" class="bg-transparent text-white focus:outline-none">
+                        </div>
+                        <button onclick="loadCreatorStats()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow transition">
+                            Cek Stats
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+                            <i class="fa-solid fa-film text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Total Terbuat</p>
+                            <p class="text-xl font-bold text-white" id="stat-total">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center">
+                            <i class="fa-brands fa-tiktok text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Terupload TikTok</p>
+                            <p class="text-xl font-bold text-white" id="stat-tiktok">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-brands fa-google-drive text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Google Drive File</p>
+                            <p class="text-xl font-bold text-white" id="stat-drive">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Report Submission Form -->
+            <div class="glass-panel p-5 sm:p-7 rounded-2xl border border-slate-800 space-y-8">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-file-pen text-blue-400"></i> Form Input Laporan Harian
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Isi link konten TikTok yang telah terupload atau unggah file video ke Drive.</p>
+                </div>
+
+                <!-- 1. TikTok Links Section -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-pink-400 flex items-center gap-1.5">
+                            <i class="fa-brands fa-tiktok"></i> Link Konten TikTok (Maks. 20)
+                        </h4>
+                        <button onclick="addTikTokInput()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-pink-400"></i> Tambah Link
+                        </button>
+                    </div>
+                    <div id="tiktok-inputs-container" class="space-y-3">
+                        <!-- Dynamic TikTok Link Inputs -->
+                    </div>
+                </div>
+
+                <!-- 2. Drive Video Upload Section -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                            <i class="fa-brands fa-google-drive"></i> Upload Video Ke Google Drive (Maks. 20)
+                        </h4>
+                        <button onclick="addDriveInput()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-emerald-400"></i> Tambah Video
+                        </button>
+                    </div>
+
+                    <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 flex items-start gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5"></i>
+                        <span>File video yang diunggah akan otomatis disimpan ke Google Drive dengan penamaan format <strong>Motif Produk</strong>.</span>
+                    </div>
+
+                    <div id="drive-inputs-container" class="space-y-4">
+                        <!-- Dynamic Drive Inputs -->
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800">
+                    <button onclick="submitDailyReport()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-emerald-600/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 text-base">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>
+                        <span>Lapor & Kirim ke WhatsApp</span>
+                    </button>
+                    <p class="text-center text-[11px] text-slate-500 mt-2">Format otomatis: <code>Laporan konten harian (username) (tiktok) (drive) (total)</code></p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Creator CRUD -->
+    <div id="creator-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                <h3 class="text-base font-bold text-white flex items-center gap-2" id="modal-title">
+                    <i class="fa-solid fa-user-plus text-purple-400"></i> Tambah Kreator Baru
+                </h3>
+                <button onclick="closeCreatorModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 overflow-y-auto text-xs">
+                <input type="hidden" id="c-row">
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Nama Lengkap Konten Kreator</label>
+                    <input type="text" id="c-name" placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Username Login</label>
+                        <input type="text" id="c-username" placeholder="budi_creator" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">PIN Login (6 Angka)</label>
+                        <input type="number" id="c-pin" placeholder="123456" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Target Konten / Hari</label>
+                        <input type="number" id="c-target" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Nomor WhatsApp (628xxx)</label>
+                        <input type="text" id="c-wa" placeholder="628123456789" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Nomor Rekening Bank / E-Wallet</label>
+                    <input type="text" id="c-bank" placeholder="BCA 1234567890 a/n Budi" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Tempat, Tanggal Lahir</label>
+                    <input type="text" id="c-ttl" placeholder="Jakarta, 15 Agustus 1998" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Alamat Lengkap</label>
+                    <textarea id="c-address" placeholder="Jl. Sudirman No. 123..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white h-20 focus:outline-none focus:border-purple-500"></textarea>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-950 flex justify-end gap-2">
+                <button onclick="closeCreatorModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Batal</button>
+                <button onclick="saveCreator()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-semibold shadow">Simpan Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Setup Code.gs Code Viewer -->
+    <div id="script-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-code text-blue-400"></i>
+                    <h3 class="text-base font-bold text-white">Google Apps Script Backend (Code.gs)</h3>
+                </div>
+                <button onclick="toggleScriptModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 bg-slate-950 text-slate-300 text-xs overflow-y-auto font-mono leading-relaxed space-y-3">
+                <div class="bg-blue-900/20 border border-blue-800/40 p-3 rounded-lg text-blue-300 font-sans">
+                    <strong>PENTING:</strong> Salin kode di bawah ini ke editor <code>Code.gs</code> di Google Apps Script Anda, lalu wajib lakukan <strong>Deploy &gt; New Deployment (Web App)</strong> dan pilih <em>Who has access: Anyone</em>.
+                </div>
+                <div class="relative">
+                    <button onclick="copyCodeGs()" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-sans font-semibold">
+                        <i class="fa-regular fa-copy mr-1"></i> Copy Code.gs
+                    </button>
+                    <pre id="code-gs-text" class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-emerald-400 overflow-x-auto text-[11px]">
+const SPREADSHEET_ID = '1Eo_6WvsId6l9Wf3CNguBn8McE075XmSwUgTjz2iD4OM';
+const DRIVE_FOLDER_ID = '1iHzv36CncuvlEYa69EIMHnLfYuHV7GHL';
+const ADMIN_PIN = '808013';
+
+function doGet(e) {
+  try {
+    if (e && e.parameter && e.parameter.action) {
+      let data = {};
+      if (e.parameter.data) {
+        try { data = JSON.parse(e.parameter.data); } catch(err) { data = {}; }
+      }
+      const result = handleAction(e.parameter.action, data);
+      return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch(error) {
+    return ContentService.createTextOutput(JSON.stringify({success: false, error: error.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+  return HtmlService.createHtmlOutput('<h3>CreatorHub Apps Script Backend Active</h3>')
+      .setTitle('CreatorHub - Laporan Harian')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+  try {
+    let body = {};
+    if (e && e.postData && e.postData.contents) {
+      body = JSON.parse(e.postData.contents);
+    }
+    const action = body.action || (e && e.parameter && e.parameter.action);
+    const result = handleAction(action, body);
+
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  } catch(error) {
+    return ContentService.createTextOutput(JSON.stringify({success: false, error: error.toString()})).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function handleAction(action, body) {
+  if (action === 'getCreatorsList') return getCreatorsList();
+  if (action === 'loginCreator') return loginCreator(body.username, body.pin);
+  if (action === 'loginAdmin') return loginAdmin(body.pin);
+  if (action === 'getCreatorsData') return getCreatorsData();
+  if (action === 'saveCreator') return saveCreator(body.data || body);
+  if (action === 'deleteCreator') return deleteCreator(body.rowIdx);
+  if (action === 'submitReport') return submitReport(body.data || body);
+  if (action === 'getDashboardStats') return getDashboardStats(body.username, body.startDate, body.endDate, body.isAdmin);
+  if (action === 'uploadFileServer') return uploadFileServer(body.base64Data, body.filename, body.mimeType);
+  return { success: false, error: 'Unknown action: ' + action };
+}
+
+function getSpreadsheet() {
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
+
+function initSheets() {
+  const ss = getSpreadsheet();
+  let sheetKreator = ss.getSheetByName('Kreator');
+  if (!sheetKreator) {
+    sheetKreator = ss.insertSheet('Kreator');
+    sheetKreator.appendRow(['Nama', 'Username', 'PIN', 'Target', 'WhatsApp', 'Bank', 'TTL', 'Alamat']);
+    sheetKreator.appendRow(['Kreator Demo', 'kreator1', '123456', 10, '628123456789', 'BCA 12345', 'Jakarta', 'Jl. Merdeka']);
+  }
+  let sheetLaporan = ss.getSheetByName('Laporan');
+  if (!sheetLaporan) {
+    sheetLaporan = ss.insertSheet('Laporan');
+    sheetLaporan.appendRow(['Timestamp', 'Tanggal', 'Username', 'Tipe', 'Link_atau_Motif', 'Drive_URL', 'Jumlah']);
+  }
+}
+
+function getCreatorsList() {
+  initSheets();
+  const sheet = getSpreadsheet().getSheetByName('Kreator');
+  const data = sheet.getDataRange().getValues();
+  const creators = [];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0]) {
+      creators.push({ name: data[i][0], username: String(data[i][1]) });
+    }
+  }
+  return creators;
+}
+
+function loginCreator(username, pin) {
+  initSheets();
+  const sheet = getSpreadsheet().getSheetByName('Kreator');
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][1]).trim() === String(username).trim() && String(data[i][2]).trim() === String(pin).trim()) {
+      return { success: true, name: data[i][0], username: data[i][1], target: data[i][3] };
+    }
+  }
+  return { success: false, message: 'Username atau PIN salah!' };
+}
+
+function loginAdmin(pin) {
+  if (String(pin).trim() === ADMIN_PIN) {
+    return { success: true };
+  }
+  return { success: false, message: 'PIN Admin salah!' };
+}
+
+function getCreatorsData() {
+  initSheets();
+  const sheet = getSpreadsheet().getSheetByName('Kreator');
+  const data = sheet.getDataRange().getValues();
+  const result = [];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0]) {
+      result.push({
+        rowIdx: i + 1,
+        name: data[i][0],
+        username: data[i][1],
+        pin: data[i][2],
+        target: data[i][3],
+        whatsapp: data[i][4],
+        bank: data[i][5],
+        ttl: data[i][6],
+        address: data[i][7]
+      });
+    }
+  }
+  return result;
+}
+
+function saveCreator(c) {
+  initSheets();
+  const sheet = getSpreadsheet().getSheetByName('Kreator');
+  if (c.rowIdx) {
+    sheet.getRange(c.rowIdx, 1, 1, 8).setValues([[c.name, c.username, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]]);
+  } else {
+    sheet.appendRow([c.name, c.username, c.pin, c.target, c.whatsapp, c.bank, c.ttl, c.address]);
+  }
+  return { success: true };
+}
+
+function deleteCreator(rowIdx) {
+  initSheets();
+  const sheet = getSpreadsheet().getSheetByName('Kreator');
+  sheet.deleteRow(rowIdx);
+  return { success: true };
+}
+
+function uploadFileServer(base64Data, filename, mimeType) {
+  try {
+    const folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+    const decoded = Utilities.base64Decode(base64Data);
+    const blob = Utilities.newBlob(decoded, mimeType, filename);
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return { success: true, url: file.getUrl(), name: filename };
+  } catch(e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+function submitReport(data) {
+  initSheets();
+  const sheet = getSpreadsheet().getSheetByName('Laporan');
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+  let tiktokCount = 0;
+  let driveCount = 0;
+
+  if (data.tiktokLinks && data.tiktokLinks.length > 0) {
+    data.tiktokLinks.forEach(function(link) {
+      sheet.appendRow([now, dateStr, data.username, 'TikTok', link, '', 1]);
+      tiktokCount++;
+    });
+  }
+
+  if (data.driveFiles && data.driveFiles.length > 0) {
+    data.driveFiles.forEach(function(file) {
+      sheet.appendRow([now, dateStr, data.username, 'Drive', file.name, file.url, 1]);
+      driveCount++;
+    });
+  }
+
+  return {
+    success: true,
+    username: data.username,
+    totalTikTok: tiktokCount,
+    totalDrive: driveCount,
+    totalAll: tiktokCount + driveCount
+  };
+}
+
+function getDashboardStats(username, startDate, endDate, isAdmin) {
+  initSheets();
+  const ss = getSpreadsheet();
+  const lapSheet = ss.getSheetByName('Laporan');
+  const kreatorSheet = ss.getSheetByName('Kreator');
+  
+  const lapData = lapSheet.getDataRange().getValues();
+  const kreatorData = kreatorSheet.getDataRange().getValues();
+  
+  if (isAdmin) {
+    const creatorsMap = {};
+    for (let i = 1; i < kreatorData.length; i++) {
+      if (kreatorData[i][0]) {
+        creatorsMap[kreatorData[i][1]] = {
+          name: kreatorData[i][0],
+          username: kreatorData[i][1],
+          target: Number(kreatorData[i][3]) || 10,
+          achieved: 0,
+          tiktok: 0,
+          drive: 0
+        };
+      }
+    }
+
+    for (let i = 1; i < lapData.length; i++) {
+      const rowDate = lapData[i][1];
+      const u = lapData[i][2];
+      const type = lapData[i][3];
+      
+      if (startDate && rowDate < startDate) continue;
+      if (endDate && rowDate > endDate) continue;
+
+      if (creatorsMap[u]) {
+        creatorsMap[u].achieved += 1;
+        if (type === 'TikTok') creatorsMap[u].tiktok += 1;
+        if (type === 'Drive') creatorsMap[u].drive += 1;
+      }
+    }
+
+    return { performanceList: Object.values(creatorsMap) };
+  } else {
+    let tiktok = 0, drive = 0;
+    for (let i = 1; i < lapData.length; i++) {
+      const rowDate = lapData[i][1];
+      const u = lapData[i][2];
+      const type = lapData[i][3];
+
+      if (u === username) {
+        if (startDate && rowDate < startDate) continue;
+        if (endDate && rowDate > endDate) continue;
+
+        if (type === 'TikTok') tiktok++;
+        if (type === 'Drive') drive++;
+      }
+    }
+    return { totalTikTok: tiktok, totalDrive: drive, totalAll: tiktok + drive };
+  }
+}
+                    </pre>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-900 flex justify-end">
+                <button onclick="toggleScriptModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzypDfhPOfMJSpo0qQHoorAS58LvfxWS5Wbu-D-rDppy42yDJyA7XNii5abpBrTfxN1/exec";
+
+        let currentUser = null;
+        let isAdmin = false;
+        let adminCreatorsData = [];
+        let tiktokInputCount = 0;
+        let driveInputCount = 0;
+
+        async function callGasAPI(action, params = {}) {
+            // Attempt 1: POST request
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: action, ...params })
+                });
+                const data = await response.json();
+                if (data && data.error) {
+                    throw new Error(data.error);
+                }
+                return data;
+            } catch (postErr) {
+                console.warn("POST request failed, trying GET request fallback...", postErr);
+                
+                // Attempt 2: GET request fallback (bypasses CORS 302 redirects)
+                try {
+                    const queryParams = new URLSearchParams({
+                        action: action,
+                        data: JSON.stringify(params)
+                    });
+                    const getUrl = `${WEB_APP_URL}?${queryParams.toString()}`;
+                    const response = await fetch(getUrl, { method: "GET" });
+                    const data = await response.json();
+                    if (data && data.error) {
+                        throw new Error(data.error);
+                    }
+                    return data;
+                } catch (getErr) {
+                    console.error("API Call Error (Both POST and GET failed):", getErr);
+                    throw new Error("Gagal terhubung ke Google Apps Script backend.");
+                }
+            }
+        }
+
+        window.onload = function() {
+            startClock();
+            initDateFilters();
+            
+            const badge = document.getElementById('env-mode-text');
+            badge.textContent = "Connecting to API...";
+            badge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center gap-1.5";
+            
+            loadCreatorDropdown();
+            addTikTokInput();
+            addDriveInput();
+        };
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                const opts = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit', second:'2-digit' };
+                document.getElementById('realtime-clock').textContent = now.toLocaleDateString('id-ID', opts);
+            }, 1000);
+        }
+
+        function initDateFilters() {
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            document.getElementById('creator-filter-start').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('creator-filter-end').value = today.toISOString().split('T')[0];
+            document.getElementById('admin-filter-start').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('admin-filter-end').value = today.toISOString().split('T')[0];
+        }
+
+        function showLoader(msg = "Memuat Data...") {
+            document.getElementById('loading-text').textContent = msg;
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoader() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        function handleError(err) {
+            hideLoader();
+            alert("Terjadi Kesalahan: " + err);
+        }
+
+        function toggleScriptModal() {
+            document.getElementById('script-modal').classList.toggle('hidden');
+        }
+
+        function copyCodeGs() {
+            const codeText = document.getElementById('code-gs-text').textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert("Kode Code.gs berhasil disalin ke clipboard! Tempelkan dan deploy ulang Web App Anda di Google Apps Script.");
+        }
+
+        function switchLoginTab(type) {
+            document.getElementById('form-creator').classList.toggle('hidden', type !== 'creator');
+            document.getElementById('form-admin').classList.toggle('hidden', type !== 'admin');
+            
+            const activeCls = 'flex-1 py-2.5 text-xs sm:text-sm font-semibold rounded-lg bg-blue-600 text-white shadow-md transition-all';
+            const inactiveCls = 'flex-1 py-2.5 text-xs sm:text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all';
+
+            document.getElementById('tab-creator').className = type === 'creator' ? activeCls : inactiveCls;
+            document.getElementById('tab-admin').className = type === 'admin' ? activeCls : inactiveCls;
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        async function loadCreatorDropdown() {
+            showLoader("Memuat Daftar Username...");
+            const select = document.getElementById('login-username');
+            try {
+                const creators = await callGasAPI('getCreatorsList');
+                hideLoader();
+                select.innerHTML = '<option value="">-- Pilih Username Konten Kreator --</option>';
+                if(creators && creators.length > 0) {
+                    creators.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.username;
+                        opt.textContent = `${c.name} (@${c.username})`;
+                        select.appendChild(opt);
+                    });
+                }
+                const badge = document.getElementById('env-mode-text');
+                badge.textContent = "Live: Connected via API";
+                badge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5";
+            } catch(err) {
+                hideLoader();
+                console.warn("GAS Connection Error during initial load:", err);
+                select.innerHTML = `
+                    <option value="">-- Mode Pratinjau (Pilih Username Demo) --</option>
+                    <option value="kreator1">Kreator Demo (@kreator1)</option>
+                `;
+                const badge = document.getElementById('env-mode-text');
+                badge.textContent = "Mode Pratinjau / Demo";
+                badge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5";
+            }
+        }
+
+        async function handleCreatorLogin() {
+            const username = document.getElementById('login-username').value;
+            const pin = document.getElementById('login-creator-pin').value;
+
+            if(!username || !pin) {
+                showLoginError("Harap pilih username dan masukkan PIN login!");
+                return;
+            }
+
+            showLoader("Melakukan Otentikasi...");
+            try {
+                const res = await callGasAPI('loginCreator', { username, pin });
+                hideLoader();
+                if(res.success) {
+                    currentUser = res;
+                    isAdmin = false;
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('creator-view').classList.remove('hidden');
+                    document.getElementById('nav-logout-btn').classList.remove('hidden');
+                    document.getElementById('display-creator-name').textContent = res.name;
+                    document.getElementById('display-creator-user').textContent = res.username;
+                    loadCreatorStats();
+                } else {
+                    showLoginError(res.message || "Username atau PIN salah!");
+                }
+            } catch (err) {
+                hideLoader();
+                if (username === 'kreator1' && pin === '123456') {
+                    currentUser = { name: 'Kreator Demo', username: 'kreator1', target: 10 };
+                    isAdmin = false;
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('creator-view').classList.remove('hidden');
+                    document.getElementById('nav-logout-btn').classList.remove('hidden');
+                    document.getElementById('display-creator-name').textContent = currentUser.name;
+                    document.getElementById('display-creator-user').textContent = currentUser.username;
+                    alert("Masuk Mode Pratinjau Konten Kreator.");
+                    return;
+                }
+                showLoginError("Gagal tersambung ke backend API. Untuk demo, gunakan 'kreator1' & PIN '123456'.");
+            }
+        }
+
+        async function handleAdminLogin() {
+            const pin = document.getElementById('login-admin-pin').value;
+            if(!pin) { showLoginError("Masukkan PIN Admin!"); return; }
+
+            showLoader("Verifikasi PIN Admin...");
+            try {
+                const res = await callGasAPI('loginAdmin', { pin });
+                hideLoader();
+                if(res.success) {
+                    isAdmin = true;
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('admin-view').classList.remove('hidden');
+                    document.getElementById('nav-logout-btn').classList.remove('hidden');
+                    loadAdminCreators();
+                    loadAdminStats();
+                } else {
+                    showLoginError(res.message || "PIN Admin salah!");
+                }
+            } catch (err) {
+                hideLoader();
+                // Offline fallback logic for PIN 808013
+                if (String(pin).trim() === '808013') {
+                    isAdmin = true;
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('admin-view').classList.remove('hidden');
+                    document.getElementById('nav-logout-btn').classList.remove('hidden');
+                    loadAdminCreators();
+                    loadAdminStats();
+                    alert("Masuk Dashboard Admin (Mode Pratinjau / Offline). Gunakan tombol 'Setup Code.gs' untuk menyalin backend jika diperlukan.");
+                    return;
+                }
+                showLoginError("PIN Admin Salah atau Backend belum siap. PIN Default: 808013");
+            }
+        }
+
+        function showLoginError(msg) {
+            const el = document.getElementById('login-error');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        function logout() {
+            currentUser = null;
+            isAdmin = false;
+            document.getElementById('creator-view').classList.add('hidden');
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('nav-logout-btn').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+            document.getElementById('login-creator-pin').value = '';
+            document.getElementById('login-admin-pin').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            loadCreatorDropdown();
+        }
+
+        function switchAdminView(view) {
+            document.getElementById('admin-performa').classList.toggle('hidden', view !== 'performa');
+            document.getElementById('admin-manajemen').classList.toggle('hidden', view !== 'manajemen');
+            
+            const activeCls = 'flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold bg-purple-600 text-white shadow-md transition';
+            const inactiveCls = 'flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition';
+
+            document.getElementById('btn-view-performa').className = view === 'performa' ? activeCls : inactiveCls;
+            document.getElementById('btn-view-manajemen').className = view === 'manajemen' ? activeCls : inactiveCls;
+        }
+
+        async function loadAdminCreators() {
+            showLoader("Menarik Data Terkini...");
+            try {
+                const data = await callGasAPI('getCreatorsData');
+                adminCreatorsData = data || [];
+                renderCreatorTable();
+                hideLoader();
+            } catch (err) {
+                hideLoader();
+                console.warn("Using demo creator data due to API fallback:", err);
+                adminCreatorsData = [
+                    { rowIdx: 2, name: 'Kreator Demo', username: 'kreator1', pin: '123456', target: 10, whatsapp: '628123456789', bank: 'BCA 123456789', ttl: 'Jakarta, 1 Jan 2000', address: 'Jl. Merdeka' }
+                ];
+                renderCreatorTable();
+            }
+        }
+
+        function renderCreatorTable() {
+            const tbody = document.getElementById('creator-table-body');
+            tbody.innerHTML = '';
+            if(!adminCreatorsData || adminCreatorsData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-xs">Belum ada data kreator. Klik "Tambah Kreator" untuk menambah data baru.</td></tr>`;
+                return;
+            }
+
+            adminCreatorsData.forEach((c, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-white">${c.name}</td>
+                    <td class="p-4 font-mono text-purple-400">@${c.username}</td>
+                    <td class="p-4 font-mono text-slate-400">${c.pin}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">${c.target} Konten</span>
+                    </td>
+                    <td class="p-4 text-slate-300">${c.whatsapp}</td>
+                    <td class="p-4 text-slate-300">${c.bank || '-'}</td>
+                    <td class="p-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="openCreatorModal(${index})" class="p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition" title="Edit Data">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteCreator(${c.rowIdx})" class="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition" title="Hapus Kreator">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openCreatorModal(idx = null) {
+            document.getElementById('creator-modal').classList.remove('hidden');
+            if (idx !== null) {
+                document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-user-pen text-purple-400"></i> Edit Data Kreator';
+                const c = adminCreatorsData[idx];
+                document.getElementById('c-row').value = c.rowIdx;
+                document.getElementById('c-name').value = c.name;
+                document.getElementById('c-username').value = c.username;
+                document.getElementById('c-pin').value = c.pin;
+                document.getElementById('c-target').value = c.target;
+                document.getElementById('c-wa').value = c.whatsapp;
+                document.getElementById('c-bank').value = c.bank || '';
+                document.getElementById('c-ttl').value = c.ttl || '';
+                document.getElementById('c-address').value = c.address || '';
+            } else {
+                document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-user-plus text-purple-400"></i> Tambah Kreator Baru';
+                document.getElementById('c-row').value = '';
+                document.getElementById('c-name').value = '';
+                document.getElementById('c-username').value = '';
+                document.getElementById('c-pin').value = '';
+                document.getElementById('c-target').value = '10';
+                document.getElementById('c-wa').value = '';
+                document.getElementById('c-bank').value = '';
+                document.getElementById('c-ttl').value = '';
+                document.getElementById('c-address').value = '';
+            }
+        }
+
+        function closeCreatorModal() {
+            document.getElementById('creator-modal').classList.add('hidden');
+        }
+
+        async function saveCreator() {
+            const data = {
+                rowIdx: document.getElementById('c-row').value,
+                name: document.getElementById('c-name').value.trim(),
+                username: document.getElementById('c-username').value.trim(),
+                pin: document.getElementById('c-pin').value.trim(),
+                target: Number(document.getElementById('c-target').value) || 10,
+                whatsapp: document.getElementById('c-wa').value.trim(),
+                bank: document.getElementById('c-bank').value.trim(),
+                ttl: document.getElementById('c-ttl').value.trim(),
+                address: document.getElementById('c-address').value.trim()
+            };
+
+            if(!data.name || !data.username || !data.pin) {
+                alert("Nama, Username, dan PIN wajib diisi!");
+                return;
+            }
+
+            showLoader("Menyimpan & Mensinkronkan Data...");
+            try {
+                await callGasAPI('saveCreator', { data });
+                closeCreatorModal();
+                loadAdminCreators();
+            } catch(err) {
+                handleError(err.message);
+            }
+        }
+
+        async function deleteCreator(rowIdx) {
+            if(!confirm("Apakah Anda yakin ingin menghapus konten kreator ini dari sistem? Data yang terhapus tidak dapat dikembalikan.")) return;
+            
+            showLoader("Menghapus Data Kreator...");
+            try {
+                await callGasAPI('deleteCreator', { rowIdx });
+                loadAdminCreators();
+            } catch(err) {
+                handleError(err.message);
+            }
+        }
+
+        async function loadAdminStats() {
+            const start = document.getElementById('admin-filter-start').value;
+            const end = document.getElementById('admin-filter-end').value;
+
+            showLoader("Menganalisis Performa Sistem...");
+            try {
+                const stats = await callGasAPI('getDashboardStats', { startDate: start, endDate: end, isAdmin: true });
+                renderAdminStats(stats);
+            } catch(err) {
+                hideLoader();
+                console.warn("Using demo stats due to API fallback:", err);
+                renderAdminStats({
+                    performanceList: [
+                        { name: 'Kreator Demo', username: 'kreator1', target: 10, achieved: 8, tiktok: 5, drive: 3 }
+                    ]
+                });
+            }
+        }
+
+        function renderAdminStats(stats) {
+            const container = document.getElementById('admin-stats-container');
+            container.innerHTML = '';
+
+            if(!stats || !stats.performanceList || stats.performanceList.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-slate-500 py-8 text-xs">Belum ada data performa untuk rentang tanggal ini.</div>`;
+                hideLoader();
+                return;
+            }
+
+            stats.performanceList.forEach(p => {
+                const targetVal = p.target || 10;
+                const pct = Math.min(100, Math.round((p.achieved / targetVal) * 100));
+                const isAchieved = p.achieved >= targetVal;
+
+                const card = `
+                    <div class="glass-panel rounded-2xl p-5 border border-slate-800 space-y-4 hover:border-slate-700 transition">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-base text-white">${p.name}</h4>
+                                <p class="text-xs text-purple-400 font-mono">@${p.username}</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${isAchieved ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                                ${isAchieved ? 'Target Tercapai' : 'Proses Target'}
+                            </span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Target Harian: <strong class="text-slate-200">${targetVal}</strong></span>
+                                <span class="font-bold text-white">${p.achieved} / ${targetVal} (${pct}%)</span>
+                            </div>
+                            <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800 text-xs">
+                            <div class="flex items-center gap-2 text-pink-400 bg-pink-950/20 p-2 rounded-xl border border-pink-900/30">
+                                <i class="fa-brands fa-tiktok text-sm"></i>
+                                <span><strong>${p.tiktok}</strong> TikTok</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-emerald-400 bg-emerald-950/20 p-2 rounded-xl border border-emerald-900/30">
+                                <i class="fa-brands fa-google-drive text-sm"></i>
+                                <span><strong>${p.drive}</strong> Drive</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+            hideLoader();
+        }
+
+        async function loadCreatorStats() {
+            if(!currentUser) return;
+            const start = document.getElementById('creator-filter-start').value;
+            const end = document.getElementById('creator-filter-end').value;
+
+            showLoader("Menarik Pencapaian Creator...");
+            try {
+                const stats = await callGasAPI('getDashboardStats', { username: currentUser.username, startDate: start, endDate: end, isAdmin: false });
+                document.getElementById('stat-total').textContent = stats.totalAll || 0;
+                document.getElementById('stat-tiktok').textContent = stats.totalTikTok || 0;
+                document.getElementById('stat-drive').textContent = stats.totalDrive || 0;
+                hideLoader();
+            } catch(err) {
+                hideLoader();
+                console.warn("Using default stats due to API error:", err);
+                document.getElementById('stat-total').textContent = 0;
+                document.getElementById('stat-tiktok').textContent = 0;
+                document.getElementById('stat-drive').textContent = 0;
+            }
+        }
+
+        function addTikTokInput() {
+            if(tiktokInputCount >= 20) { alert("Maksimal 20 link TikTok per hari!"); return; }
+            tiktokInputCount++;
+            const id = 'tk_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const div = document.createElement('div');
+            div.id = `wrap_${id}`;
+            div.className = "flex items-center gap-2";
+            div.innerHTML = `
+                <div class="flex-grow flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden focus-within:border-pink-500 transition">
+                    <span class="pl-3 text-pink-500"><i class="fa-solid fa-link text-xs"></i></span>
+                    <input type="url" name="tiktok_link" class="w-full bg-transparent text-xs sm:text-sm p-3 text-white focus:outline-none placeholder-slate-500" placeholder="https://vt.tiktok.com/xxxx...">
+                </div>
+                <button onclick="removeInput('wrap_${id}', 'tiktok')" class="p-3 text-slate-500 hover:text-red-400 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            document.getElementById('tiktok-inputs-container').appendChild(div);
+        }
+
+        function addDriveInput() {
+            if(driveInputCount >= 20) { alert("Maksimal 20 video Drive per hari!"); return; }
+            driveInputCount++;
+            const id = 'dv_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const div = document.createElement('div');
+            div.id = `wrap_${id}`;
+            div.className = "bg-slate-900/90 p-4 rounded-xl border border-slate-700 relative space-y-3";
+            div.innerHTML = `
+                <button onclick="removeInput('wrap_${id}', 'drive')" class="absolute top-3 right-3 text-slate-500 hover:text-red-400 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-6">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1 font-semibold uppercase">Motif Produk (Penamaan File)</label>
+                        <input type="text" name="drive_motif" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" placeholder="Contoh: Motif Abstrak Blue">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1 font-semibold uppercase">Pilih File Video</label>
+                        <input type="file" accept="video/*" name="drive_file" class="w-full text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 focus:outline-none cursor-pointer">
+                    </div>
+                </div>
+            `;
+            document.getElementById('drive-inputs-container').appendChild(div);
+        }
+
+        function removeInput(id, type) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+            if(type === 'tiktok') tiktokInputCount--;
+            if(type === 'drive') driveInputCount--;
+        }
+
+        function uploadFileAsBase64(file, motif) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const dataUrl = e.target.result;
+                        const base64 = dataUrl.split(',')[1];
+                        const mimeType = dataUrl.split(';')[0].split(':')[1];
+                        const ext = file.name.split('.').pop();
+                        const cleanMotif = motif.replace(/[^a-zA-Z0-9_-]/g, '_');
+                        const newName = `${cleanMotif}_${currentUser.username}_${Date.now()}.${ext}`;
+
+                        const res = await callGasAPI('uploadFileServer', {
+                            base64Data: base64,
+                            filename: newName,
+                            mimeType: mimeType
+                        });
+                        resolve(res);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = function() { reject("Gagal membaca file sistem komputer Anda!"); };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function submitDailyReport() {
+            const tkInputs = document.querySelectorAll('input[name="tiktok_link"]');
+            let tiktokLinks = [];
+            tkInputs.forEach(inp => {
+                if(inp.value.trim() !== "") tiktokLinks.push(inp.value.trim());
+            });
+
+            const driveWraps = document.getElementById('drive-inputs-container').children;
+            let fileQueue = [];
+
+            for(let i=0; i<driveWraps.length; i++) {
+                const motifInp = driveWraps[i].querySelector('input[name="drive_motif"]');
+                const fileInp = driveWraps[i].querySelector('input[name="drive_file"]');
+
+                if(fileInp && fileInp.files.length > 0) {
+                    fileQueue.push({
+                        motif: motifInp && motifInp.value.trim() !== "" ? motifInp.value.trim() : "Motif_Tanpa_Nama",
+                        file: fileInp.files[0]
+                    });
+                }
+            }
+
+            if(tiktokLinks.length === 0 && fileQueue.length === 0) {
+                alert("Harap masukkan setidaknya 1 Link TikTok atau 1 Upload Video Drive!");
+                return;
+            }
+
+            let uploadedFiles = [];
+            if(fileQueue.length > 0) {
+                for(let i=0; i<fileQueue.length; i++) {
+                    const item = fileQueue[i];
+                    showLoader(`Mengupload Video Ke Server (${i+1}/${fileQueue.length})...\nMohon tunggu, ini bisa memakan waktu...`);
+                    
+                    try {
+                        const res = await uploadFileAsBase64(item.file, item.motif);
+                        if(res.success) {
+                            uploadedFiles.push({ name: res.name, url: res.url });
+                        } else {
+                            alert(`Gagal upload video ke-${i+1}: ${res.error}`);
+                            hideLoader();
+                            return;
+                        }
+                    } catch(err) {
+                        alert(`Error Server saat upload video ke-${i+1}: ${err.message || err}`);
+                        hideLoader();
+                        return;
+                    }
+                }
+            }
+
+            showLoader("Mensinkronkan Laporan Harian...");
+            const reportData = {
+                username: currentUser.username,
+                tiktokLinks: tiktokLinks,
+                driveFiles: uploadedFiles,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            try {
+                const res = await callGasAPI('submitReport', { data: reportData });
+                hideLoader();
+                
+                if (res.success) {
+                    const waText = `Laporan konten harian ${currentUser.username} ${res.totalTikTok} ${res.totalDrive} ${res.totalAll}`;
+                    const waUrl = `https://wa.me/6283866997758?text=${encodeURIComponent(waText)}`;
+                    window.open(waUrl, '_blank');
+
+                    document.getElementById('tiktok-inputs-container').innerHTML = '';
+                    document.getElementById('drive-inputs-container').innerHTML = '';
+                    tiktokInputCount = 0;
+                    driveInputCount = 0;
+                    addTikTokInput();
+                    addDriveInput();
+
+                    loadCreatorStats();
+                    alert(`Laporan Berhasil Disinkronisasikan!\n\nSummary:\n- TikTok: ${res.totalTikTok}\n- Drive: ${res.totalDrive}\n- Total: ${res.totalAll}`);
+                } else {
+                    handleError(res.error || "Gagal menyinkronkan laporan");
+                }
+            } catch (err) {
+                handleError(err.message);
+            }
+        }
+    </script>
+</body>
+</html>
